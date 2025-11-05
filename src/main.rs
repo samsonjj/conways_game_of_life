@@ -108,6 +108,18 @@ impl GameOfLife {
         self.height = size;
         self.grid = vec![vec![State::Dead; size]; size];
     }
+
+    pub fn slow_down(&mut self) {
+        self.speed /= 2;
+        if self.speed == 0 {
+            self.speed = 1;
+            self.paused = true;
+        }
+    }
+
+    pub fn speed_up(&mut self) {
+        self.speed *= 2;
+    }
 }
 
 fn ftoi(x: f32, y: f32, game: &GameOfLife) -> (usize, usize) {
@@ -172,15 +184,11 @@ fn step_controller(game: &mut GameOfLife) {
         game.paused = !game.paused;
     }
 
-    if is_key_pressed(KeyCode::O) {
-        game.speed *= 2;
-    }
     if is_key_pressed(KeyCode::U) {
-        game.speed /= 2;
-        if game.speed == 0 {
-            game.speed = 1;
-            game.paused = true;
-        }
+        game.slow_down();
+    }
+    if is_key_pressed(KeyCode::O) {
+        game.speed_up();
     }
 
     if game.paused {
@@ -206,16 +214,6 @@ fn nav_button(text: &str, dx: f32, game: &mut GameOfLife, f: impl FnOnce(&mut Ga
     let dims = draw_text(text, dx, text_dy, 30.0, BLACK);
     if is_mouse_button_pressed(MouseButton::Left) {
         let (x, y) = mouse_position();
-        dbg!(
-            text,
-            x >= dx,
-            x < dx + dims.width,
-            y >= text_dy - dims.height,
-            y < text_dy,
-            text_dy,
-            dims.height,
-            y,
-        );
         if x >= dx
             && x < dx + dims.width
             && y >= text_dy - NAV_HEIGHT + text_line_margin * 2.
@@ -246,8 +244,20 @@ async fn main() {
         clear_background(BLACK);
         render(&game);
         render_nav(&game);
+
         nav_button("+", 70., &mut game, |game| game.set_size(game.width + 1));
         nav_button("-", 90., &mut game, |game| game.set_size(game.width - 1));
+        nav_button("<<", 120., &mut game, |game| game.slow_down());
+        nav_button(">>", 150., &mut game, |game| game.speed_up());
+        nav_button(
+            match game.paused {
+                true => "pause",
+                false => "play",
+            },
+            screen_width() - 75.,
+            &mut game,
+            |game| game.paused = !game.paused,
+        );
 
         // update
         step_controller(&mut game);

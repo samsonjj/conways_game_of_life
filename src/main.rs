@@ -207,12 +207,20 @@ fn nav_button(text: &str, dx: f32, game: &mut GameOfLife, f: impl FnOnce(&mut Ga
     if is_mouse_button_pressed(MouseButton::Left) {
         let (x, y) = mouse_position();
         dbg!(
+            text,
             x >= dx,
             x < dx + dims.width,
             y >= text_dy - dims.height,
-            y < text_dy
+            y < text_dy,
+            text_dy,
+            dims.height,
+            y,
         );
-        if x >= dx && x < dx + dims.width && y >= text_dy - dims.height && y < text_dy {
+        if x >= dx
+            && x < dx + dims.width
+            && y >= text_dy - NAV_HEIGHT + text_line_margin * 2.
+            && y < text_dy
+        {
             f(game);
         }
     }

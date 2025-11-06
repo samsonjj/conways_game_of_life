@@ -2,6 +2,10 @@ use std::collections::VecDeque;
 
 use macroquad::prelude::*;
 
+use crate::render::{draw_hollow_rectangle, ftoi, square_width_f};
+
+mod render;
+
 const GAME_AREA_WIDTH: f32 = 720.;
 const NAV_HEIGHT: f32 = 30.;
 
@@ -122,12 +126,6 @@ impl GameOfLife {
     }
 }
 
-fn ftoi(x: f32, y: f32, game: &GameOfLife) -> (usize, usize) {
-    let square_width = screen_width() / (game.width as f32);
-    let (a, b) = (y / square_width, x / square_width);
-    return (a as usize, b as usize);
-}
-
 fn render(game: &GameOfLife) {
     let square_width = screen_width() / (game.width as f32);
     for i in 0..game.height {
@@ -162,6 +160,15 @@ fn render_nav(game: &GameOfLife) {
 fn mouse_controller(game: &mut GameOfLife) {
     let (x, y) = mouse_position();
     let (a, b) = ftoi(x, y, game);
+
+    // square hover highlight
+    if a < game.width && b < game.height {
+        let square_width = square_width_f(game);
+        let dx = b as f32 * square_width;
+        let dy = a as f32 * square_width;
+        draw_hollow_rectangle(dx, dy, square_width, square_width, 5.0, WHITE);
+    }
+
     if a >= game.height || b >= game.width {
         return;
     }

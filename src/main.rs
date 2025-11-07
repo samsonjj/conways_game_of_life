@@ -231,7 +231,7 @@ fn nav_button(text: &str, dx: f32, game: &mut GameOfLife, f: impl FnOnce(&mut Ga
     }
 }
 
-#[macroquad::main("MyGame")]
+#[macroquad::main("Conway's Game of Life")]
 async fn main() {
     request_new_screen_size(GAME_AREA_WIDTH, GAME_AREA_WIDTH + NAV_HEIGHT);
     let mut game = GameOfLife::new(20, 20);
